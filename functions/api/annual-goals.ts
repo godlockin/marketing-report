@@ -19,23 +19,49 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
   try {
     const goals = await request.json() as any[];
     
-    // Transaction: Delete all and re-insert (simplest for full list update)
-    // Or upsert. Let's use upsert loop.
+    // Full sync: Delete all and re-insert
+    const stmts = [];
+    stmts.push(env.DB.prepare('DELETE FROM annual_goals'));
+
+    if (goals && goals.length > 0) {
+      const insertStmt = env.DB.prepare(`
+        INSERT INTO annual_goals (id, name, value, description, progress, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      for (const g of goals) {
+        stmts.push(insertStmt.bind(
+          g.id || crypto.randomUUID(), 
+          g.name || '', 
+          g.value || '', 
+          g.description || '', 
+          g.progress || 0, 
+          new Date().toISOString()
+        ));
+      }
+    }
     
-    const stmt = env.DB.prepare(`
-      INSERT INTO annual_goals (id, name, value, description, progress, created_at)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET
-      name=excluded.name, value=excluded.value, description=excluded.description, progress=excluded.progress
-    `);
+    await env.DB.batch(stmts);
     
-    const batch = goals.map(g => stmt.bind(
-      g.id || crypto.randomUUID(), 
-      g.name, g.value, g.description, g.progress, 
-      new Date().toISOString()
-    ));
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+  }
+}
+
+export const onRequestDelete: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
     
-    await env.DB.batch(batch);
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'Missing id parameter' }), { status: 400 });
+    }
+    
+    await env.DB.prepare('DELETE FROM annual_goals WHERE id = ?').bind(id).run();
     
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },

@@ -11,13 +11,13 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import { Toaster } from 'sonner';
 
 const AdminRoute = () => {
-  const { user, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   
   if (isLoading) {
     return <div className="flex items-center justify-center h-full">加载中...</div>;
   }
   
-  if (!user) {
+  if (!isAuthenticated) {
     return <AdminLogin />;
   }
   

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useProject } from '../../context/ProjectContext';
+import { useProjects } from '../../context/ProjectContext';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
@@ -11,8 +11,12 @@ import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Project } from '../../types/project';
 import { toast } from 'sonner';
 
+import EmployeeManager from './EmployeeManager';
+import GoalManager from './GoalManager';
+import MetricManager from './MetricManager';
+
 export default function AdminDashboard() {
-  const { user, signOut } = useAuth();
+  const { logout } = useAuth();
   const { addProject } = useProjects();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -107,10 +111,10 @@ export default function AdminDashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">后台管理系统</h1>
           <p className="text-muted-foreground mt-2">
-            当前登录: {user?.email}
+            当前登录: 管理员
           </p>
         </div>
-        <Button variant="outline" onClick={() => signOut()}>
+        <Button variant="outline" onClick={() => logout()}>
           <LogOut className="mr-2 h-4 w-4" />
           退出登录
         </Button>
@@ -118,8 +122,11 @@ export default function AdminDashboard() {
 
       <Tabs defaultValue="projects" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="projects">项目数据管理</TabsTrigger>
-          <TabsTrigger value="users">用户权限 (演示)</TabsTrigger>
+          <TabsTrigger value="projects">项目数据</TabsTrigger>
+          <TabsTrigger value="employees">员工管理</TabsTrigger>
+          <TabsTrigger value="goals">年度目标</TabsTrigger>
+          <TabsTrigger value="metrics">月度信息</TabsTrigger>
+          <TabsTrigger value="users">系统状态</TabsTrigger>
         </TabsList>
 
         <TabsContent value="projects" className="space-y-4">
@@ -173,12 +180,24 @@ export default function AdminDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="employees">
+          <EmployeeManager />
+        </TabsContent>
+
+        <TabsContent value="goals">
+          <GoalManager />
+        </TabsContent>
+
+        <TabsContent value="metrics">
+          <MetricManager />
+        </TabsContent>
+
         <TabsContent value="users">
           <Card>
             <CardHeader>
               <CardTitle>用户权限管理</CardTitle>
               <CardDescription>
-                当前系统仅支持基本的登录验证。高级权限管理需要配置 Supabase Roles。
+                当前系统仅支持基本的登录验证。
               </CardDescription>
             </CardHeader>
             <CardContent>
