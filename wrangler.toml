@@ -1,0 +1,9 @@
+name = "marketing-report-tool"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "dist"
+
+# D1 数据库配置
+[[d1_databases]]
+binding = "DB"
+database_name = "marketing-report-db"
+database_id = "YOUR_DATABASE_ID" # 请替换为你的 D1 数据库 ID
