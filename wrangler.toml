@@ -6,4 +6,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "marketing-report-db"
-database_id = "YOUR_DATABASE_ID" # 请替换为你的 D1 数据库 ID
+database_id = "7870ce55-b302-4190-8a68-e07d661e6e93"
